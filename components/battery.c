@@ -13,8 +13,8 @@
 
     static const wchar_t charge_states[] = { L'▁', L'▂', L'▃', L'▅', L'▆', L'▇' };
 
-	static const char *
-	pick(const char *bat, const char *f1, const char *f2, char *path,
+	static const wchar_t *
+	pick(const wchar_t *bat, const wchar_t *f1, const wchar_t *f2, wchar_t *path,
 	     size_t length)
 	{
 		if (esnprintf(path, length, f1, bat) > 0 &&
@@ -30,60 +30,60 @@
 		return NULL;
 	}
 
-	const char *
-	battery_perc(const char *bat)
+	const wchar_t *
+	battery_perc(const wchar_t *bat)
 	{
 		int perc;
-		char path[PATH_MAX];
+		wchar_t path[PATH_MAX];
 
 		if (esnprintf(path, sizeof(path),
-		              "/sys/class/power_supply/%s/capacity", bat) < 0) {
+		              L"/sys/class/power_supply/%s/capacity", bat) < 0) {
 			return NULL;
 		}
-		if (pscanf(path, "%d", &perc) != 1) {
+		if (pscanf(path, L"%d", &perc) != 1) {
 			return NULL;
 		}
 
-		return bprintf("%d", perc);
+		return bprintf(L"%d", perc);
 	}
 
-	const char *
-	battery_perc_vis(const char *bat)
+	const wchar_t *
+	battery_perc_vis(const wchar_t *bat)
 	{
 		int perc, charge_index;
-		char path[PATH_MAX];
+		wchar_t path[PATH_MAX];
 
 		if (esnprintf(path, sizeof(path),
-		              "/sys/class/power_supply/%s/capacity", bat) < 0) {
+		              L"/sys/class/power_supply/%s/capacity", bat) < 0) {
 			return NULL;
 		}
-		if (pscanf(path, "%d", &perc) != 1) {
+		if (pscanf(path, L"%d", &perc) != 1) {
 			return NULL;
 		}
 
         charge_index = round(sizeof(charge_states) * (perc/100));
 
-		return bprintf("%c", charge_states[charge_index]);
+		return bprintf(L"%c", charge_states[charge_index]);
 	}
 
-	const char *
-	battery_state(const char *bat)
+	const wchar_t *
+	battery_state(const wchar_t *bat)
 	{
 		static struct {
-			char *state;
-			char *symbol;
+			wchar_t *state;
+			wchar_t *symbol;
 		} map[] = {
-			{ "Charging",    "+" },
-			{ "Discharging", "-" },
+			{ L"Charging",    "+" },
+			{ L"Discharging", "-" },
 		};
 		size_t i;
-		char path[PATH_MAX], state[12];
+		wchar_t path[PATH_MAX], state[12];
 
 		if (esnprintf(path, sizeof(path),
-		              "/sys/class/power_supply/%s/status", bat) < 0) {
+		              L"/sys/class/power_supply/%s/status", bat) < 0) {
 			return NULL;
 		}
-		if (pscanf(path, "%12s", state) != 1) {
+		if (pscanf(path, L"%12s", state) != 1) {
 			return NULL;
 		}
 
@@ -92,36 +92,36 @@
 				break;
 			}
 		}
-		return (i == LEN(map)) ? "?" : map[i].symbol;
+		return (i == LEN(map)) ? L"?" : map[i].symbol;
 	}
 
-	const char *
-	battery_remaining(const char *bat)
+	const wchar_t *
+	battery_remaining(const wchar_t *bat)
 	{
 		uintmax_t charge_now, current_now, m, h;
 		double timeleft;
-		char path[PATH_MAX], state[12];
+		wchar_t path[PATH_MAX], state[12];
 
 		if (esnprintf(path, sizeof(path),
-		              "/sys/class/power_supply/%s/status", bat) < 0) {
+		              L"/sys/class/power_supply/%s/status", bat) < 0) {
 			return NULL;
 		}
-		if (pscanf(path, "%12s", state) != 1) {
+		if (pscanf(path, L"%12s", state) != 1) {
 			return NULL;
 		}
 
-		if (!pick(bat, "/sys/class/power_supply/%s/charge_now",
-		          "/sys/class/power_supply/%s/energy_now", path,
+		if (!pick(bat, L"/sys/class/power_supply/%s/charge_now",
+		          L"/sys/class/power_supply/%s/energy_now", path,
 		          sizeof(path)) ||
-		    pscanf(path, "%ju", &charge_now) < 0) {
+		    pscanf(path, L"%ju", &charge_now) < 0) {
 			return NULL;
 		}
 
-		if (!strcmp(state, "Discharging")) {
-			if (!pick(bat, "/sys/class/power_supply/%s/current_now",
-			          "/sys/class/power_supply/%s/power_now", path,
+		if (!strcmp(state, L"Discharging")) {
+			if (!pick(bat, L"/sys/class/power_supply/%s/current_now",
+			          L"/sys/class/power_supply/%s/power_now", path,
 			          sizeof(path)) ||
-			    pscanf(path, "%ju", &current_now) < 0) {
+			    pscanf(path, L"%ju", &current_now) < 0) {
 				return NULL;
 			}
 
@@ -133,10 +133,10 @@
 			h = timeleft;
 			m = (timeleft - (double)h) * 60;
 
-			return bprintf("%juh %jum", h, m);
+			return bprintf(L"%juh %jum", h, m);
 		}
 
-		return "";
+		return L"";
 	}
 #elif defined(__OpenBSD__)
 	#include <fcntl.h>
@@ -149,42 +149,42 @@
 	{
 		int fd;
 
-		fd = open("/dev/apm", O_RDONLY);
+		fd = open(L"/dev/apm", O_RDONLY);
 		if (fd < 0) {
-			warn("open '/dev/apm':");
+			warn(L"open '/dev/apm':");
 			return 0;
 		}
 
 		memset(apm_info, 0, sizeof(struct apm_power_info));
 		if (ioctl(fd, APM_IOC_GETPOWER, apm_info) < 0) {
-			warn("ioctl 'APM_IOC_GETPOWER':");
+			warn(L"ioctl 'APM_IOC_GETPOWER':");
 			close(fd);
 			return 0;
 		}
 		return close(fd), 1;
 	}
 
-	const char *
-	battery_perc(const char *unused)
+	const wchar_t *
+	battery_perc(const wchar_t *unused)
 	{
 		struct apm_power_info apm_info;
 
 		if (load_apm_power_info(&apm_info)) {
-			return bprintf("%d", apm_info.battery_life);
+			return bprintf(L"%d", apm_info.battery_life);
 		}
 
 		return NULL;
 	}
 
-	const char *
-	battery_state(const char *unused)
+	const wchar_t *
+	battery_state(const wchar_t *unused)
 	{
 		struct {
 			unsigned int state;
-			char *symbol;
+			wchar_t *symbol;
 		} map[] = {
-			{ APM_AC_ON,      "+" },
-			{ APM_AC_OFF,     "-" },
+			{ APM_AC_ON,      L"+" },
+			{ APM_AC_OFF,     L"-" },
 		};
 		struct apm_power_info apm_info;
 		size_t i;
@@ -195,24 +195,24 @@
 					break;
 				}
 			}
-			return (i == LEN(map)) ? "?" : map[i].symbol;
+			return (i == LEN(map)) ? L"?" : map[i].symbol;
 		}
 
 		return NULL;
 	}
 
-	const char *
-	battery_remaining(const char *unused)
+	const wchar_t *
+	battery_remaining(const wchar_t *unused)
 	{
 		struct apm_power_info apm_info;
 
 		if (load_apm_power_info(&apm_info)) {
 			if (apm_info.ac_state != APM_AC_ON) {
-				return bprintf("%uh %02um",
+				return bprintf(L"%uh %02um",
 			                       apm_info.minutes_left / 60,
 				               apm_info.minutes_left % 60);
 			} else {
-				return "";
+				return L"";
 			}
 		}
 

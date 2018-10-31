@@ -5,21 +5,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <wchar.h>
 
 #include "util.h"
 
-char *argv0;
+wchar_t *argv0;
 
 static void
-verr(const char *fmt, va_list ap)
+verr(const wchar_t *fmt, va_list ap)
 {
-	if (argv0 && strncmp(fmt, "usage", sizeof("usage") - 1)) {
-		fprintf(stderr, "%s: ", argv0);
+	if (argv0 && wcsncmp(fmt, L"usage", sizeof("usage") - 1)) {
+		fwprintf(stderr, L"%s: ", argv0);
 	}
 
-	vfprintf(stderr, fmt, ap);
+	vfwprintf(stderr, fmt, ap);
 
-	if (fmt[0] && fmt[strlen(fmt) - 1] == ':') {
+	if (fmt[0] && fmt[wcslen(fmt) - 1] == ':') {
 		fputc(' ', stderr);
 		perror(NULL);
 	} else {
@@ -28,7 +30,7 @@ verr(const char *fmt, va_list ap)
 }
 
 void
-warn(const char *fmt, ...)
+warn(const wchar_t *fmt, ...)
 {
 	va_list ap;
 
@@ -38,7 +40,7 @@ warn(const char *fmt, ...)
 }
 
 void
-die(const char *fmt, ...)
+die(const wchar_t *fmt, ...)
 {
 	va_list ap;
 
@@ -50,17 +52,17 @@ die(const char *fmt, ...)
 }
 
 static int
-evsnprintf(char *str, size_t size, const char *fmt, va_list ap)
+evsnprintf(wchar_t *str, size_t size, const wchar_t *fmt, va_list ap)
 {
 	int ret;
 
-	ret = vsnprintf(str, size, fmt, ap);
+	ret = vswprintf(str, size, fmt, ap);
 
 	if (ret < 0) {
-		warn("vsnprintf:");
+		warn(L"vsnprintf:");
 		return -1;
 	} else if ((size_t)ret >= size) {
-		warn("vsnprintf: Output truncated");
+		warn(L"vsnprintf: Output truncated");
 		return -1;
 	}
 
@@ -68,7 +70,7 @@ evsnprintf(char *str, size_t size, const char *fmt, va_list ap)
 }
 
 int
-esnprintf(char *str, size_t size, const char *fmt, ...)
+esnprintf(wchar_t *str, size_t size, const wchar_t *fmt, ...)
 {
 	va_list ap;
 	int ret;
@@ -80,8 +82,8 @@ esnprintf(char *str, size_t size, const char *fmt, ...)
 	return ret;
 }
 
-const char *
-bprintf(const char *fmt, ...)
+const wchar_t *
+bprintf(const wchar_t *fmt, ...)
 {
 	va_list ap;
 	int ret;
@@ -93,16 +95,16 @@ bprintf(const char *fmt, ...)
 	return (ret < 0) ? NULL : buf;
 }
 
-const char *
+const wchar_t *
 fmt_human(uintmax_t num, int base)
 {
 	double scaled;
 	size_t i, prefixlen;
-	const char **prefix;
-	const char *prefix_1000[] = { "", "k", "M", "G", "T", "P", "E", "Z",
-	                              "Y" };
-	const char *prefix_1024[] = { "", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei",
-	                              "Zi", "Yi" };
+	const wchar_t **prefix;
+	const wchar_t *prefix_1000[] = { L"", L"k", L"M", L"G", L"T", L"P", L"E", L"Z",
+	                              L"Y" };
+	const wchar_t *prefix_1024[] = { L"", L"Ki", L"Mi", L"Gi", L"Ti", L"Pi", L"Ei",
+	                              L"Zi", L"Yi" };
 
 	switch (base) {
 	case 1000:
@@ -114,7 +116,7 @@ fmt_human(uintmax_t num, int base)
 		prefixlen = LEN(prefix_1024);
 		break;
 	default:
-		warn("fmt_human: Invalid base");
+		warn(L"fmt_human: Invalid base");
 		return NULL;
 	}
 
@@ -123,22 +125,25 @@ fmt_human(uintmax_t num, int base)
 		scaled /= base;
 	}
 
-	return bprintf("%.1f%s", scaled, prefix[i]);
+	return bprintf(L"%.1f%s", scaled, prefix[i]);
 }
 
 int
-pscanf(const char *path, const char *fmt, ...)
+pscanf(const wchar_t *path, const wchar_t *fmt, ...)
 {
 	FILE *fp;
 	va_list ap;
 	int n;
+    char mbyte_path[PATH_MAX]; 
 
-	if (!(fp = fopen(path, "r"))) {
-		warn("fopen '%s':", path);
+    wcsrtombs(mbyte_path, &path, PATH_MAX, NULL);
+
+	if (!(fp = fopen(mbyte_path, "r"))) {
+		warn(L"fopen '%s':", mbyte_path);
 		return -1;
 	}
 	va_start(ap, fmt);
-	n = vfscanf(fp, fmt, ap);
+	n = fwscanf(fp, fmt, ap);
 	va_end(ap);
 	fclose(fp);
 
