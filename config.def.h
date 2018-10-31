@@ -61,6 +61,6 @@ static const wchar_t unknown_str[] = L"n/a";
  */
 static const struct arg args[] = {
 	/* function format          argument */
-	{ datetime, L"%s",           "%F %T" },
+	{ datetime, L"%s",           L"%F %T" },
 	{ battery_perc_vis, NULL, NULL },
 };

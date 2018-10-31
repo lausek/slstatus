@@ -4,19 +4,19 @@
 
 #include "../util.h"
 
-const char *
-run_command(const char *cmd)
+const wchar_t **
+run_command(const wchar_t **cmd)
 {
-	char *p;
+	wchar_t **p;
 	FILE *fp;
 
-	if (!(fp = popen(cmd, "r"))) {
-		warn("popen '%s':", cmd);
+	if (!(fp = popen(cmd, L"r"))) {
+		warn(L"popen '%s':", cmd);
 		return NULL;
 	}
 	p = fgets(buf, sizeof(buf) - 1, fp);
 	if (pclose(fp) < 0) {
-		warn("pclose '%s':", cmd);
+		warn(L"pclose '%s':", cmd);
 		return NULL;
 	}
 	if (!p) {

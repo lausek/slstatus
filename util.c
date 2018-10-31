@@ -12,6 +12,15 @@
 
 wchar_t *argv0;
 
+char *
+wchar2char(const wchar_t *src)
+{
+    size_t len = wcslen(src);
+    char* buffer = malloc(len);
+    wcsrtombs(buffer, &src, len, NULL);
+    return buffer;
+}
+
 static void
 verr(const wchar_t *fmt, va_list ap)
 {
@@ -59,10 +68,10 @@ evsnprintf(wchar_t *str, size_t size, const wchar_t *fmt, va_list ap)
 	ret = vswprintf(str, size, fmt, ap);
 
 	if (ret < 0) {
-		warn(L"vsnprintf:");
+		warn(L"vswprintf:");
 		return -1;
 	} else if ((size_t)ret >= size) {
-		warn(L"vsnprintf: Output truncated");
+		warn(L"vswprintf: Output truncated");
 		return -1;
 	}
 

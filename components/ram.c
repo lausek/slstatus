@@ -6,15 +6,15 @@
 #if defined(__linux__)
 	#include <stdint.h>
 
-	const char *
+	const wchar_t **
 	ram_free(void)
 	{
 		uintmax_t free;
 
-		if (pscanf("/proc/meminfo",
-		           "MemTotal: %ju kB\n"
-		           "MemFree: %ju kB\n"
-		           "MemAvailable: %ju kB\n",
+		if (pscanf(L"/proc/meminfo",
+		           L"MemTotal: %ju kB\n"
+		           L"MemFree: %ju kB\n"
+		           L"MemAvailable: %ju kB\n",
 		           &free, &free, &free) != 3) {
 			return NULL;
 		}
@@ -22,17 +22,17 @@
 		return fmt_human(free * 1024, 1024);
 	}
 
-	const char *
+	const wchar_t **
 	ram_perc(void)
 	{
 		uintmax_t total, free, buffers, cached;
 
-		if (pscanf("/proc/meminfo",
-		           "MemTotal: %ju kB\n"
-		           "MemFree: %ju kB\n"
-		           "MemAvailable: %ju kB\n"
-		           "Buffers: %ju kB\n"
-		           "Cached: %ju kB\n",
+		if (pscanf(L"/proc/meminfo",
+		           L"MemTotal: %ju kB\n"
+		           L"MemFree: %ju kB\n"
+		           L"MemAvailable: %ju kB\n"
+		           L"Buffers: %ju kB\n"
+		           L"Cached: %ju kB\n",
 		           &total, &free, &buffers, &buffers, &cached) != 5) {
 			return NULL;
 		}
@@ -41,16 +41,16 @@
 			return NULL;
 		}
 
-		return bprintf("%d", 100 * ((total - free) - (buffers + cached))
+		return bprintf(L"%d", 100 * ((total - free) - (buffers + cached))
                                / total);
 	}
 
-	const char *
+	const wchar_t **
 	ram_total(void)
 	{
 		uintmax_t total;
 
-		if (pscanf("/proc/meminfo", "MemTotal: %ju kB\n", &total)
+		if (pscanf(L"/proc/meminfo", "MemTotal: %ju kB\n", &total)
 		    != 1) {
 			return NULL;
 		}
@@ -58,17 +58,17 @@
 		return fmt_human(total * 1024, 1024);
 	}
 
-	const char *
+	const wchar_t **
 	ram_used(void)
 	{
 		uintmax_t total, free, buffers, cached;
 
-		if (pscanf("/proc/meminfo",
-		           "MemTotal: %ju kB\n"
-		           "MemFree: %ju kB\n"
-		           "MemAvailable: %ju kB\n"
-		           "Buffers: %ju kB\n"
-		           "Cached: %ju kB\n",
+		if (pscanf(L"/proc/meminfo",
+		           L"MemTotal: %ju kB\n"
+		           L"MemFree: %ju kB\n"
+		           L"MemAvailable: %ju kB\n"
+		           L"Buffers: %ju kB\n"
+		           L"Cached: %ju kB\n",
 		           &total, &free, &buffers, &buffers, &cached) != 5) {
 			return NULL;
 		}
@@ -100,7 +100,7 @@
 		return 0;
 	}
 
-	const char *
+	const wchar_t **
 	ram_free(void)
 	{
 		struct uvmexp uvmexp;
@@ -115,7 +115,7 @@
 		return NULL;
 	}
 
-	const char *
+	const wchar_t **
 	ram_perc(void)
 	{
 		struct uvmexp uvmexp;
@@ -123,13 +123,13 @@
 
 		if (load_uvmexp(&uvmexp)) {
 			percent = uvmexp.active * 100 / uvmexp.npages;
-			return bprintf("%d", percent);
+			return bprintf(L"%d", percent);
 		}
 
 		return NULL;
 	}
 
-	const char *
+	const wchar_t **
 	ram_total(void)
 	{
 		struct uvmexp uvmexp;
@@ -143,7 +143,7 @@
 		return NULL;
 	}
 
-	const char *
+	const wchar_t **
 	ram_used(void)
 	{
 		struct uvmexp uvmexp;

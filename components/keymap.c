@@ -8,11 +8,11 @@
 #include "../util.h"
 
 static int
-valid_layout_or_variant(char *sym)
+valid_layout_or_variant(wchar_t **sym)
 {
 	size_t i;
 	/* invalid symbols from xkb rules config */
-	static const char *invalid[] = { "evdev", "inet", "pc", "base" };
+	static const wchar_t **invalid[] = { L"evdev", "inet", "pc", "base" };
 
 	for (i = 0; i < LEN(invalid); i++) {
 		if (!strncmp(sym, invalid[i], strlen(invalid[i]))) {
@@ -23,15 +23,15 @@ valid_layout_or_variant(char *sym)
 	return 1;
 }
 
-static char *
-get_layout(char *syms, int grp_num)
+static wchar_t **
+get_layout(wchar_t **syms, int grp_num)
 {
-	char *tok, *layout;
+	wchar_t **tok, *layout;
 	int grp;
 
 	layout = NULL;
-	tok = strtok(syms, "+:");
-	for (grp = 0; tok && grp <= grp_num; tok = strtok(NULL, "+:")) {
+	tok = strtok(syms, L"+:");
+	for (grp = 0; tok && grp <= grp_num; tok = strtok(NULL, L"+:")) {
 		if (!valid_layout_or_variant(tok)) {
 			continue;
 		} else if (strlen(tok) == 1 && isdigit(tok[0])) {
@@ -45,42 +45,42 @@ get_layout(char *syms, int grp_num)
 	return layout;
 }
 
-const char *
+const wchar_t **
 keymap(void)
 {
 	Display *dpy;
 	XkbDescRec *desc;
 	XkbStateRec state;
-	char *symbols, *layout;
+	wchar_t **symbols, *layout;
 
 	layout = NULL;
 
 	if (!(dpy = XOpenDisplay(NULL))) {
-		warn("XOpenDisplay: Failed to open display");
+		warn(L"XOpenDisplay: Failed to open display");
 		return NULL;
 	}
 	if (!(desc = XkbAllocKeyboard())) {
-		warn("XkbAllocKeyboard: Failed to allocate keyboard");
+		warn(L"XkbAllocKeyboard: Failed to allocate keyboard");
 		goto end;
 	}
 	if (XkbGetNames(dpy, XkbSymbolsNameMask, desc)) {
-		warn("XkbGetNames: Failed to retrieve key symbols");
+		warn(L"XkbGetNames: Failed to retrieve key symbols");
 		goto end;
 	}
 	if (XkbGetState(dpy, XkbUseCoreKbd, &state)) {
-		warn("XkbGetState: Failed to retrieve keyboard state");
+		warn(L"XkbGetState: Failed to retrieve keyboard state");
 		goto end;
 	}
 	if (!(symbols = XGetAtomName(dpy, desc->names->symbols))) {
-		warn("XGetAtomName: Failed to get atom name");
+		warn(L"XGetAtomName: Failed to get atom name");
 		goto end;
 	}
-	layout = (char *)bprintf("%s", get_layout(symbols, state.group));
+	layout = (wchar_t **)bprintf(L"%s", get_layout(symbols, state.group));
 	XFree(symbols);
 end:
 	XkbFreeKeyboard(desc, XkbSymbolsNameMask, 1);
 	if (XCloseDisplay(dpy)) {
-		warn("XCloseDisplay: Failed to close display");
+		warn(L"XCloseDisplay: Failed to close display");
 	}
 
 	return layout;

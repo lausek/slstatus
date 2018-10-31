@@ -10,15 +10,15 @@
 
 #include "../util.h"
 
-static const char *
-ip(const char *interface, unsigned short sa_family)
+static const wchar_t **
+ip(const wchar_t **interface, unsigned short sa_family)
 {
 	struct ifaddrs *ifaddr, *ifa;
 	int s;
-	char host[NI_MAXHOST];
+	wchar_t *host[NI_MAXHOST];
 
 	if (getifaddrs(&ifaddr) < 0) {
-		warn("getifaddrs:");
+		warn(L"getifaddrs:");
 		return NULL;
 	}
 
@@ -28,14 +28,14 @@ ip(const char *interface, unsigned short sa_family)
 		}
 		s = getnameinfo(ifa->ifa_addr, sizeof(struct sockaddr_in6),
 		                host, NI_MAXHOST, NULL, 0, NI_NUMERICHOST);
-		if (!strcmp(ifa->ifa_name, interface) &&
+		if (!wcscmp(ifa->ifa_name, interface) &&
 		    (ifa->ifa_addr->sa_family == sa_family)) {
 			freeifaddrs(ifaddr);
 			if (s != 0) {
-				warn("getnameinfo: %s", gai_strerror(s));
+				warn(L"getnameinfo: %s", gai_strerror(s));
 				return NULL;
 			}
-			return bprintf("%s", host);
+			return bprintf(L"%s", host);
 		}
 	}
 
@@ -44,14 +44,14 @@ ip(const char *interface, unsigned short sa_family)
 	return NULL;
 }
 
-const char *
-ipv4(const char *interface)
+const wchar_t **
+ipv4(const wchar_t **interface)
 {
 	return ip(interface, AF_INET);
 }
 
-const char *
-ipv6(const char *interface)
+const wchar_t **
+ipv6(const wchar_t **interface)
 {
 	return ip(interface, AF_INET6);
 }

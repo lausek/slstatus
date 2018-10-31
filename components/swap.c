@@ -12,16 +12,16 @@
 	{
 		FILE *fp;
 		struct {
-			const char *name;
+			const wchar_t **name;
 			const size_t len;
 			long *var;
 		} ent[] = {
-			{ "SwapTotal",  sizeof("SwapTotal") - 1,  s_total  },
-			{ "SwapFree",   sizeof("SwapFree") - 1,   s_free   },
-			{ "SwapCached", sizeof("SwapCached") - 1, s_cached },
+			{ L"SwapTotal",  sizeof("SwapTotal") - 1,  s_total  },
+			{ L"SwapFree",   sizeof("SwapFree") - 1,   s_free   },
+			{ L"SwapCached", sizeof("SwapCached") - 1, s_cached },
 		};
 		size_t line_len = 0, i, left;
-		char *line = NULL;
+		wchar_t **line = NULL;
 
 		/* get number of fields we want to extract */
 		for (i = 0, left = 0; i < LEN(ent); i++) {
@@ -30,8 +30,8 @@
 			}
 		}
 
-		if (!(fp = fopen("/proc/meminfo", "r"))) {
-			warn("fopen '/proc/meminfo':");
+		if (!(fp = fopen(L"/proc/meminfo", "r"))) {
+			warn(L"fopen '/proc/meminfo':");
 			return 1;
 		}
 
@@ -41,7 +41,7 @@
 				if (ent[i].var &&
 				    !strncmp(line, ent[i].name, ent[i].len)) {
 					sscanf(line + ent[i].len + 1,
-					       "%ld kB\n", ent[i].var);
+					       L"%ld kB\n", ent[i].var);
 					left--;
 					break;
 				}
@@ -49,7 +49,7 @@
 		}
 		free(line);
 		if (ferror(fp)) {
-			warn("getline '/proc/meminfo':");
+			warn(L"getline '/proc/meminfo':");
 			return 1;
 		}
 
@@ -57,7 +57,7 @@
 		return 0;
 	}
 
-	const char *
+	const wchar_t **
 	swap_free(void)
 	{
 		long free;
@@ -69,7 +69,7 @@
 		return fmt_human(free * 1024, 1024);
 	}
 
-	const char *
+	const wchar_t **
 	swap_perc(void)
 	{
 		long total, free, cached;
@@ -78,10 +78,10 @@
 			return NULL;
 		}
 
-		return bprintf("%d", 100 * (total - free - cached) / total);
+		return bprintf(L"%d", 100 * (total - free - cached) / total);
 	}
 
-	const char *
+	const wchar_t **
 	swap_total(void)
 	{
 		long total;
@@ -93,7 +93,7 @@
 		return fmt_human(total * 1024, 1024);
 	}
 
-	const char *
+	const wchar_t **
 	swap_used(void)
 	{
 		long total, free, cached;
@@ -117,19 +117,19 @@
 		int rnswap, nswap, i;
 
 		if ((nswap = swapctl(SWAP_NSWAP, 0, 0)) < 1) {
-			warn("swaptctl 'SWAP_NSWAP':");
+			warn(L"swaptctl 'SWAP_NSWAP':");
 			return 1;
 		}
 		if (!(fsep = sep = calloc(nswap, sizeof(*sep)))) {
-			warn("calloc 'nswap':");
+			warn(L"calloc 'nswap':");
 			return 1;
 		}
 		if ((rnswap = swapctl(SWAP_STATS, (void *)sep, nswap)) < 0) {
-			warn("swapctl 'SWAP_STATA':");
+			warn(L"swapctl 'SWAP_STATA':");
 			return 1;
 		}
 		if (nswap != rnswap) {
-			warn("getstats: SWAP_STATS != SWAP_NSWAP");
+			warn(L"getstats: SWAP_STATS != SWAP_NSWAP");
 			return 1;
 		}
 
@@ -146,7 +146,7 @@
 		return 0;
 	}
 
-	const char *
+	const wchar_t **
 	swap_free(void)
 	{
 		int total, used;
@@ -158,7 +158,7 @@
 		return fmt_human((total - used) * 1024, 1024);
 	}
 
-	const char *
+	const wchar_t **
 	swap_perc(void)
 	{
 		int total, used;
@@ -171,10 +171,10 @@
 			return NULL;
 		}
 
-		return bprintf("%d", 100 * used / total);
+		return bprintf(L"%d", 100 * used / total);
 	}
 
-	const char *
+	const wchar_t **
 	swap_total(void)
 	{
 		int total, used;
@@ -186,7 +186,7 @@
 		return fmt_human(total * 1024, 1024);
 	}
 
-	const char *
+	const wchar_t **
 	swap_used(void)
 	{
 		int total, used;

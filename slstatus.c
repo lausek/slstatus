@@ -46,7 +46,7 @@ usage(void)
 }
 
 int
-main(int argc, wchar_t *argv[])
+main(int argc, char *argv[])
 {
 	struct sigaction act;
 	struct timespec start, current, diff, intspec, wait;
@@ -95,7 +95,7 @@ main(int argc, wchar_t *argv[])
 		}
 
 		if (sflag) {
-			puts(status);
+			fputws(status, stdout);
 			fflush(stdout);
 			if (ferror(stdout))
 				die(L"puts:");

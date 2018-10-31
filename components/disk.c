@@ -4,53 +4,53 @@
 
 #include "../util.h"
 
-const char *
-disk_free(const char *path)
+const wchar_t **
+disk_free(const wchar_t **path)
 {
 	struct statvfs fs;
 
 	if (statvfs(path, &fs) < 0) {
-		warn("statvfs '%s':", path);
+		warn(L"statvfs '%s':", path);
 		return NULL;
 	}
 
 	return fmt_human(fs.f_frsize * fs.f_bavail, 1024);
 }
 
-const char *
-disk_perc(const char *path)
+const wchar_t **
+disk_perc(const wchar_t **path)
 {
 	struct statvfs fs;
 
 	if (statvfs(path, &fs) < 0) {
-		warn("statvfs '%s':", path);
+		warn(L"statvfs '%s':", path);
 		return NULL;
 	}
 
-	return bprintf("%d", (int)(100 *
+	return bprintf(L"%d", (int)(100 *
 	               (1.0f - ((float)fs.f_bavail / (float)fs.f_blocks))));
 }
 
-const char *
-disk_total(const char *path)
+const wchar_t **
+disk_total(const wchar_t **path)
 {
 	struct statvfs fs;
 
 	if (statvfs(path, &fs) < 0) {
-		warn("statvfs '%s':", path);
+		warn(L"statvfs '%s':", path);
 		return NULL;
 	}
 
 	return fmt_human(fs.f_frsize * fs.f_blocks, 1024);
 }
 
-const char *
-disk_used(const char *path)
+const wchar_t **
+disk_used(const wchar_t **path)
 {
 	struct statvfs fs;
 
 	if (statvfs(path, &fs) < 0) {
-		warn("statvfs '%s':", path);
+		warn(L"statvfs '%s':", path);
 		return NULL;
 	}
 

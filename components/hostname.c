@@ -4,11 +4,11 @@
 
 #include "../util.h"
 
-const char *
+const wchar_t **
 hostname(void)
 {
 	if (gethostname(buf, sizeof(buf)) < 0) {
-		warn("gethostbyname:");
+		warn(L"gethostbyname:");
 		return NULL;
 	}
 

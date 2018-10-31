@@ -2,25 +2,26 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "../util.h"
 
 #if defined(__linux__)
-	const char *
+	const wchar_t **
 	cpu_freq(void)
 	{
 		uintmax_t freq;
 
 		/* in kHz */
-		if (pscanf("/sys/devices/system/cpu/cpu0/cpufreq/"
-		           "scaling_cur_freq", "%ju", &freq) != 1) {
+		if (pscanf(L"/sys/devices/system/cpu/cpu0/cpufreq/"
+		           L"scaling_cur_freq", "%ju", &freq) != 1) {
 			return NULL;
 		}
 
 		return fmt_human(freq * 1000, 1000);
 	}
 
-	const char *
+	const wchar_t **
 	cpu_perc(void)
 	{
 		static long double a[7];
@@ -28,7 +29,7 @@
 
 		memcpy(b, a, sizeof(b));
 		/* cpu user nice system idle iowait irq softirq */
-		if (pscanf("/proc/stat", "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf",
+		if (pscanf(L"/proc/stat", "%*s %Lf %Lf %Lf %Lf %Lf %Lf %Lf",
 		           &a[0], &a[1], &a[2], &a[3], &a[4], &a[5], &a[6])
 		    != 7) {
 			return NULL;
@@ -37,7 +38,7 @@
 			return NULL;
 		}
 
-		return bprintf("%d", (int)(100 *
+		return bprintf(L"%d", (int)(100 *
 		               ((b[0] + b[1] + b[2] + b[5] + b[6]) -
 		                (a[0] + a[1] + a[2] + a[5] + a[6])) /
 		               ((b[0] + b[1] + b[2] + b[3] + b[4] + b[5] +
@@ -50,7 +51,7 @@
 	#include <sys/sched.h>
 	#include <sys/sysctl.h>
 
-	const char *
+	const wchar_t **
 	cpu_freq(void)
 	{
 		int mib[2];
@@ -64,14 +65,14 @@
 
 		/* in MHz */
 		if (sysctl(mib, 2, &freq, &size, NULL, 0) < 0) {
-			warn("sysctl 'HW_CPUSPEED':");
+			warn(L"sysctl 'HW_CPUSPEED':");
 			return NULL;
 		}
 
 		return fmt_human(freq * 1E6, 1000);
 	}
 
-	const char *
+	const wchar_t **
 	cpu_perc(void)
 	{
 		int mib[2];
@@ -86,14 +87,14 @@
 
 		memcpy(b, a, sizeof(b));
 		if (sysctl(mib, 2, &a, &size, NULL, 0) < 0) {
-			warn("sysctl 'KERN_CPTIME':");
+			warn(L"sysctl 'KERN_CPTIME':");
 			return NULL;
 		}
 		if (b[0] == 0) {
 			return NULL;
 		}
 
-		return bprintf("%d", 100 *
+		return bprintf(L"%d", 100 *
 		               ((a[CP_USER] + a[CP_NICE] + a[CP_SYS] +
 		                 a[CP_INTR]) -
 		                (b[CP_USER] + b[CP_NICE] + b[CP_SYS] +

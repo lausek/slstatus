@@ -6,27 +6,27 @@
 
 #include "../util.h"
 
-const char *
+const wchar_t **
 gid(void)
 {
-	return bprintf("%d", getgid());
+	return bprintf(L"%d", getgid());
 }
 
-const char *
+const wchar_t **
 username(void)
 {
 	struct passwd *pw;
 
 	if (!(pw = getpwuid(geteuid()))) {
-		warn("getpwuid '%d':", geteuid());
+		warn(L"getpwuid '%d':", geteuid());
 		return NULL;
 	}
 
-	return bprintf("%s", pw->pw_name);
+	return bprintf(L"%s", pw->pw_name);
 }
 
-const char *
+const wchar_t **
 uid(void)
 {
-	return bprintf("%d", geteuid());
+	return bprintf(L"%d", geteuid());
 }

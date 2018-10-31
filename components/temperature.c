@@ -6,16 +6,16 @@
 #if defined(__linux__)
 	#include <stdint.h>
 
-	const char *
-	temp(const char *file)
+	const wchar_t **
+	temp(const wchar_t **file)
 	{
 		uintmax_t temp;
 
-		if (pscanf(file, "%ju", &temp) != 1) {
+		if (pscanf(file, L"%ju", &temp) != 1) {
 			return NULL;
 		}
 
-		return bprintf("%ju", temp / 1000);
+		return bprintf(L"%ju", temp / 1000);
 	}
 #elif defined(__OpenBSD__)
 	#include <stdio.h>
@@ -23,8 +23,8 @@
 	#include <sys/sensors.h>
 	#include <sys/sysctl.h>
 
-	const char *
-	temp(const char *unused)
+	const wchar_t **
+	temp(const wchar_t **unused)
 	{
 		int mib[5];
 		size_t size;
@@ -39,11 +39,11 @@
 		size = sizeof(temp);
 
 		if (sysctl(mib, 5, &temp, &size, NULL, 0) < 0) {
-			warn("sysctl 'SENSOR_TEMP':");
+			warn(L"sysctl 'SENSOR_TEMP':");
 			return NULL;
 		}
 
 		/* kelvin to celsius */
-		return bprintf("%d", (temp.value - 273150000) / 1E6);
+		return bprintf(L"%d", (temp.value - 273150000) / 1E6);
 	}
 #endif

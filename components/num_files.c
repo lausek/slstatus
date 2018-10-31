@@ -5,21 +5,21 @@
 
 #include "../util.h"
 
-const char *
-num_files(const char *path)
+const wchar_t **
+num_files(const wchar_t **path)
 {
 	struct dirent *dp;
 	DIR *fd;
 	int num;
 
 	if (!(fd = opendir(path))) {
-		warn("opendir '%s':", path);
+		warn(L"opendir '%s':", path);
 		return NULL;
 	}
 
 	num = 0;
 	while ((dp = readdir(fd))) {
-		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, "..")) {
+		if (!wcscmp(dp->d_name, L".") || !strcmp(dp->d_name, "..")) {
 			continue; /* skip self and parent */
 		}
 		num++;
@@ -27,5 +27,5 @@ num_files(const char *path)
 
 	closedir(fd);
 
-	return bprintf("%d", num);
+	return bprintf(L"%d", num);
 }

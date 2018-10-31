@@ -13,17 +13,17 @@
  * if the corresponding indicator is on.  Otherwise, the letter is always
  * included, lowercase when off and uppercase when on.
  */
-const char *
-keyboard_indicators(const char *fmt)
+const wchar_t **
+keyboard_indicators(const wchar_t **fmt)
 {
 	Display *dpy;
 	XKeyboardState state;
 	size_t fmtlen, i, n;
 	int togglecase, isset;
-	char key;
+	wchar_t *key;
 
 	if (!(dpy = XOpenDisplay(NULL))) {
-		warn("XOpenDisplay: Failed to open display");
+		warn(L"XOpenDisplay: Failed to open display");
 		return NULL;
 	}
 	XGetKeyboardControl(dpy, &state);

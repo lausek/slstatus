@@ -5,23 +5,23 @@
 
 	#include "../util.h"
 
-	const char *
+	const wchar_t **
 	entropy(void)
 	{
 		uintmax_t num;
 
-		if (pscanf("/proc/sys/kernel/random/entropy_avail", "%ju", &num)
+		if (pscanf(L"/proc/sys/kernel/random/entropy_avail", "%ju", &num)
 		    != 1) {
 			return NULL;
 		}
 
-		return bprintf("%ju", num);
+		return bprintf(L"%ju", num);
 	}
 #elif defined(__OpenBSD__)
-	const char *
+	const wchar_t **
 	entropy(void)
 	{
-		/* Unicode Character 'INFINITY' (U+221E) */
-		return "\xe2\x88\x9e";
+		/* Unicode wchar_t *acter 'INFINITY' (U+221E) */
+		return L"\xe2\x88\x9e";
 	}
 #endif

@@ -4,15 +4,15 @@
 
 #include "../util.h"
 
-const char *
+const wchar_t **
 kernel_release(void)
 {
 	struct utsname udata;
 
 	if (uname(&udata) < 0) {
-		warn("uname:");
+		warn(L"uname:");
 		return NULL;
 	}
 
-	return bprintf("%s", udata.release);
+	return bprintf(L"%s", udata.release);
 }

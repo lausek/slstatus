@@ -5,19 +5,19 @@
 
 #include "../util.h"
 
-const char *
+const wchar_t **
 uptime(void)
 {
 	uintmax_t h, m;
 	struct timespec uptime;
 
 	if (clock_gettime(CLOCK_BOOTTIME, &uptime) < 0) {
-		warn("clock_gettime 'CLOCK_BOOTTIME'");
+		warn(L"clock_gettime 'CLOCK_BOOTTIME'");
 		return NULL;
 	}
 
 	h = uptime.tv_sec / 3600;
 	m = uptime.tv_sec % 3600 / 60;
 
-	return bprintf("%juh %jum", h, m);
+	return bprintf(L"%juh %jum", h, m);
 }

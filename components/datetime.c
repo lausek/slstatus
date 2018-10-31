@@ -4,14 +4,14 @@
 
 #include "../util.h"
 
-const char *
-datetime(const char *fmt)
+const wchar_t *
+datetime(const wchar_t *fmt)
 {
 	time_t t;
 
 	t = time(NULL);
-	if (!strftime(buf, sizeof(buf), fmt, localtime(&t))) {
-		warn("strftime: Result string exceeds buffer size");
+	if (!wcsftime(buf, sizeof(buf), fmt, localtime(&t))) {
+		warn(L"strftime: Result string exceeds buffer size");
 		return NULL;
 	}
 
