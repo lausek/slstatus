@@ -8,6 +8,10 @@
 	#include <limits.h>
 	#include <stdint.h>
 	#include <unistd.h>
+	#include <wchar.h>
+	#include <math.h>
+
+    static const wchar_t charge_states[] = { L'▁', L'▂', L'▃', L'▅', L'▆', L'▇' };
 
 	static const char *
 	pick(const char *bat, const char *f1, const char *f2, char *path,
@@ -41,6 +45,25 @@
 		}
 
 		return bprintf("%d", perc);
+	}
+
+	const char *
+	battery_perc_vis(const char *bat)
+	{
+		int perc, charge_index;
+		char path[PATH_MAX];
+
+		if (esnprintf(path, sizeof(path),
+		              "/sys/class/power_supply/%s/capacity", bat) < 0) {
+			return NULL;
+		}
+		if (pscanf(path, "%d", &perc) != 1) {
+			return NULL;
+		}
+
+        charge_index = round(sizeof(charge_states) * (perc/100));
+
+		return bprintf("%c", charge_states[charge_index]);
 	}
 
 	const char *
